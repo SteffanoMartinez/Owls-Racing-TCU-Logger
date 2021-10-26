@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 //**Team Number 24**//
 
 #include <Arduino.h>
@@ -28,6 +29,13 @@ byte c = 0x00;
 void imusetupTask(void *parameters);
 
 void imurunTask(void *parameters);
+=======
+#include <system_on_module/app/app.h>
+#include <system_on_module/test_bench/test_bench.h>
+
+Application app;
+TestBench testBench;
+>>>>>>> 8a6afd5dea1b384e3f473b7c26d6f91ce5677ab2
 
 void setup()
 {
