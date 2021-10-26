@@ -9,7 +9,8 @@
 #define MPU9250_ADDRESS MPU9250_ADDRESS_AD0
 #define I2Cport Wire
 #define I2Cclock 400000
-#define AHRS false // Set to false for basic data read
+#define AHRS false       // Set to false for basic data read
+#define SerialDebug true // Set to true to get Serial output for debugging
 #define i2c_sda 21
 #define i2c_scl 22
 
@@ -30,14 +31,15 @@ void imurunTask(void *parameters);
 
 void setup()
 {
-  esp.uart0.begin(115200);
-  terminal.begin(&esp.uart0);
+  // esp.uart0.begin(115200);
+  // terminal.begin(&esp.uart0);
+  Serial.begin(115200);
   disableCore0WDT();
 
   xTaskCreatePinnedToCore(imusetupTask,
                           "IMU", 10000, NULL, 18, NULL, 0);
-  xTaskCreatePinnedToCore(imurunTask,
-                          "IMU", 10000, NULL, 18, NULL, 0);
+  //xTaskCreatePinnedToCore(imurunTask,
+  //                        "IMU", 10000, NULL, 18, NULL, 0);
 }
 
 void loop()
@@ -47,21 +49,21 @@ void loop()
 
 void imusetupTask(void *parameters)
 {
-  Wire.begin(i2c_sda,i2c_scl,I2Cclock);
+  Wire.begin(i2c_sda, i2c_scl, I2Cclock);
 
   TerminalMessage imu_test_debug_message;
   byte c = myIMU.readByte(MPU9250_ADDRESS_AD0, WHO_AM_I_MPU9250);
-  imu_test_debug_message.body = F("MPU9250 I AM 0x");
-  imu_test_debug_message.body += String(c, HEX);
-  imu_test_debug_message.body += " ";
-  imu_test_debug_message.body += F(" I should be ");
-  imu_test_debug_message.body += "0x071"; //0x071
-  imu_test_debug_message.body += " ";
-  imu_test_debug_message.body += String(HEX);
-  imu_test_debug_message.system = "IMU";
-  imu_test_debug_message.type = INFO;
-  imu_test_debug_message.time = micros();
-  terminal.printMessage(imu_test_debug_message);
+  // imu_test_debug_message.body = F("MPU9250 I AM 0x");
+  // imu_test_debug_message.body += String(c, HEX);
+  // imu_test_debug_message.body += " ";
+  // imu_test_debug_message.body += F(" I should be ");
+  // imu_test_debug_message.body += "0x071"; //0x071
+  // imu_test_debug_message.body += " ";
+  // imu_test_debug_message.body += String(HEX);
+  // imu_test_debug_message.system = "IMU";
+  // imu_test_debug_message.type = INFO;
+  // imu_test_debug_message.time = micros();
+  // terminal.printMessage(imu_test_debug_message);
 
   if (c == 0x71) // WHO_AM_I should always be 0x71
   {
@@ -79,7 +81,7 @@ void imusetupTask(void *parameters)
     if (d != 0x48)
     {
       // Communication failed, stop here
-      terminal.println(F("Communication failed, abort!"));
+      Serial.println(F("Communication failed, abort!"));
       abort();
     }
     else
@@ -98,10 +100,10 @@ void imusetupTask(void *parameters)
   }
   else
   {
-    terminal.print("Could not connect to MPU9250: 0x");
+    Serial.print("Could not connect to MPU9250: 0x");
     terminal.printMessage(TerminalMessage(String((c, HEX)), "IMU", ERROR, micros()));
     // Communication failed, stop here
-    terminal.println(F("Communication failed, abort!"));
+    Serial.println(F("Communication failed, abort!"));
   }
   while (1)
   {
@@ -144,47 +146,50 @@ void imurunTask(void *parameters)
     myIMU.delt_t = millis() - myIMU.count;
     if (myIMU.delt_t > 500)
     {
+      if (SerialDebug)
+      {
+        // Print acceleration values in milligs!
+        Serial.print("X-acceleration: ");
+        Serial.print(String((1000 * myIMU.ax)));
+        Serial.print(" mg ");
+        Serial.print("Y-acceleration: ");
+        Serial.print(String(1000 * myIMU.ay));
+        Serial.print(" mg ");
+        Serial.print("Z-acceleration: ");
+        Serial.print(String(1000 * myIMU.az));
+        Serial.println(" mg ");
 
-      // Print acceleration values in milligs!
-      terminal.print("X-acceleration: ");
-      terminal.print(String((1000 * myIMU.ax)));
-      terminal.print(" mg ");
-      terminal.print("Y-acceleration: ");
-      terminal.print(String(1000 * myIMU.ay));
-      terminal.print(" mg ");
-      terminal.print("Z-acceleration: ");
-      terminal.print(String(1000 * myIMU.az));
-      terminal.println(" mg ");
+        // Print gyro values in degree/sec
+        Serial.print("X-gyro rate: ");
+        Serial.print(String((myIMU.gx, 3)));
+        Serial.print(" degrees/sec ");
+        Serial.print("Y-gyro rate: ");
+        Serial.print(String(myIMU.gy, 3));
+        Serial.print(" degrees/sec ");
+        Serial.print("Z-gyro rate: ");
+        Serial.print(String(myIMU.gz, 3));
+        Serial.println(" degrees/sec");
 
-      // Print gyro values in degree/sec
-      terminal.print("X-gyro rate: ");
-      terminal.print(String((myIMU.gx, 3)));
-      terminal.print(" degrees/sec ");
-      terminal.print("Y-gyro rate: ");
-      terminal.print(String(myIMU.gy, 3));
-      terminal.print(" degrees/sec ");
-      terminal.print("Z-gyro rate: ");
-      terminal.print(String(myIMU.gz, 3));
-      terminal.println(" degrees/sec");
+        // Print mag values in degree/sec
+        Serial.print("X-mag field: ");
+        Serial.print(String(myIMU.mx));
+        Serial.print(" mG ");
+        Serial.print("Y-mag field: ");
+        Serial.print(String(myIMU.my));
+        Serial.print(" mG ");
+        Serial.print("Z-mag field: ");
+        Serial.print(String(myIMU.mz));
+        Serial.println(" mG");
 
-      // Print mag values in degree/sec
-      terminal.print("X-mag field: ");
-      terminal.print(String(myIMU.mx));
-      terminal.print(" mG ");
-      terminal.print("Y-mag field: ");
-      terminal.print(String(myIMU.my));
-      terminal.print(" mG ");
-      terminal.print("Z-mag field: ");
-      terminal.print(String(myIMU.mz));
-      terminal.println(" mG");
-
-      myIMU.tempCount = myIMU.readTempData(); // Read the adc values
-      // Temperature in degrees Centigrade
-      myIMU.temperature = ((float)myIMU.tempCount) / 333.87 + 21.0;
-      // Print temperature in degrees Centigrade
-      terminal.print("Temperature is ");
-      terminal.print(String(myIMU.temperature, 1));
-      terminal.println(" degrees C");
+        myIMU.tempCount = myIMU.readTempData(); // Read the adc values
+        // Temperature in degrees Centigrade
+        myIMU.temperature = ((float)myIMU.tempCount) / 333.87 + 21.0;
+        // Print temperature in degrees Centigrade
+        Serial.print("Temperature is ");
+        Serial.print(String(myIMU.temperature, 1));
+        Serial.println(" degrees C");
+      }
+      vTaskDelay(1000 / portTICK_PERIOD_MS);
     }
     myIMU.count = millis();
   }
@@ -193,38 +198,41 @@ void imurunTask(void *parameters)
     myIMU.delt_t = millis() - myIMU.count;
     if (myIMU.delt_t > 500)
     {
-      terminal.print("ax = ");
-      terminal.print(String((int)1000 * myIMU.ax));
-      terminal.print(" ay = ");
-      terminal.print(String((int)1000 * myIMU.ay));
-      terminal.print(" az = ");
-      terminal.print(String((int)1000 * myIMU.az));
-      terminal.println(" mg");
+      if (SerialDebug)
+      {
+        Serial.print("ax = ");
+        Serial.print(String((int)1000 * myIMU.ax));
+        Serial.print(" ay = ");
+        Serial.print(String((int)1000 * myIMU.ay));
+        Serial.print(" az = ");
+        Serial.print(String((int)1000 * myIMU.az));
+        Serial.println(" mg");
 
-      terminal.print("gx = ");
-      terminal.print(String((myIMU.gx, 2)));
-      terminal.print(" gy = ");
-      terminal.print(String(myIMU.gy, 2));
-      terminal.print(" gz = ");
-      terminal.print(String(myIMU.gz, 2));
-      terminal.println(" deg/s");
+        Serial.print("gx = ");
+        Serial.print(String((myIMU.gx, 2)));
+        Serial.print(" gy = ");
+        Serial.print(String(myIMU.gy, 2));
+        Serial.print(" gz = ");
+        Serial.print(String(myIMU.gz, 2));
+        Serial.println(" deg/s");
 
-      terminal.print("mx = ");
-      terminal.print(String((int)myIMU.mx));
-      terminal.print(" my = ");
-      terminal.print(String((int)myIMU.my));
-      terminal.print(" mz = ");
-      terminal.print(String((int)myIMU.mz));
-      terminal.println(" mG");
+        Serial.print("mx = ");
+        Serial.print(String((int)myIMU.mx));
+        Serial.print(" my = ");
+        Serial.print(String((int)myIMU.my));
+        Serial.print(" mz = ");
+        Serial.print(String((int)myIMU.mz));
+        Serial.println(" mG");
 
-      terminal.print("q0 = ");
-      terminal.print(String(*getQ()));
-      terminal.print(" qx = ");
-      terminal.print(String(*(getQ() + 1)));
-      terminal.print(" qy = ");
-      terminal.print(String(*(getQ() + 2)));
-      terminal.print(" qz = ");
-      terminal.println(String(*(getQ() + 3)));
+        Serial.print("q0 = ");
+        Serial.print(String(*getQ()));
+        Serial.print(" qx = ");
+        Serial.print(String(*(getQ() + 1)));
+        Serial.print(" qy = ");
+        Serial.print(String(*(getQ() + 2)));
+        Serial.print(" qz = ");
+        Serial.println(String(*(getQ() + 3)));
+      }
     }
     myIMU.count = millis();
     myIMU.sumCount = 0;
