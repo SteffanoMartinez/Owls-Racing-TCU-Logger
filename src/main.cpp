@@ -10,6 +10,8 @@
 #define I2Cport Wire
 #define I2Cclock 400000
 #define AHRS false // Set to false for basic data read
+#define i2c_sda 21
+#define i2c_scl 22
 
 SystemOnChip esp;
 Terminal terminal;
@@ -34,7 +36,7 @@ void setup()
 
   xTaskCreatePinnedToCore(imusetupTask,
                           "IMU", 10000, NULL, 18, NULL, 0);
-  xTaskCreatePinnedToCore(imusetupTask,
+  xTaskCreatePinnedToCore(imurunTask,
                           "IMU", 10000, NULL, 18, NULL, 0);
 }
 
@@ -45,16 +47,12 @@ void loop()
 
 void imusetupTask(void *parameters)
 {
-  Wire.begin();
-  long initial_time = millis();
-  int message_sent = 0;
+  Wire.begin(i2c_sda,i2c_scl,I2Cclock);
 
   TerminalMessage imu_test_debug_message;
   byte c = myIMU.readByte(MPU9250_ADDRESS_AD0, WHO_AM_I_MPU9250);
   imu_test_debug_message.body = F("MPU9250 I AM 0x");
   imu_test_debug_message.body += String(c, HEX);
-  imu_test_debug_message.body += " ";
-  imu_test_debug_message.body += String(HEX);
   imu_test_debug_message.body += " ";
   imu_test_debug_message.body += F(" I should be ");
   imu_test_debug_message.body += "0x071"; //0x071
@@ -104,7 +102,6 @@ void imusetupTask(void *parameters)
     terminal.printMessage(TerminalMessage(String((c, HEX)), "IMU", ERROR, micros()));
     // Communication failed, stop here
     terminal.println(F("Communication failed, abort!"));
-    abort();
   }
   while (1)
   {
