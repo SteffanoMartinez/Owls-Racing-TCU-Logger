@@ -31,6 +31,6 @@
 #define VSPI_CLCK_FREQUENCY_MHz 40000
 
 //* I2C
-#define I2C0_CLK_FREQUENCY_KHz
+#define I2C0_CLK_FREQUENCY_KHz 4
 
 //********************************************************     CPU SPEED     ********************************************************/

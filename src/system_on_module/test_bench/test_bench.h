@@ -9,6 +9,9 @@ public:
     void begin();
 
 private:
+    // SystemOnChip esp;
+    Terminal terminal;
+    //RealTimeClock rtc;
 };
 
 extern TestBench testBench;
