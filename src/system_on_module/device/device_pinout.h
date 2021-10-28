@@ -1,13 +1,13 @@
 #pragma once
 /*
-* Company: ANZE Suspension
-* File Name: main.cpp
-* Project: ESP32 System on Module
-* Version: 1.0
-* Compartible Hardware: REV1.0
-* Date Created: September 23, 2021
-* Last Modified: September 23, 2021
-*/
+ * Company: ANZE Suspension
+ * File Name: main.cpp
+ * Project: ESP32 System on Module
+ * Version: 1.0
+ * Compartible Hardware: REV1.0
+ * Date Created: September 23, 2021
+ * Last Modified: September 23, 2021
+ */
 
 //*********************************************************     READ ME    **********************************************************/
 
@@ -17,8 +17,13 @@
 
 //********************************************************     APP GPIO     *********************************************************/
 
-//* MCU
-#define MCU_EN_PIN
+//* I2C0
+#define I2C0_SDA 21
+#define I2C0_SCL 22
+
+//* I2C1
+#define I2C1_SDA 4
+#define I2C1_SCL 5
 
 //* VSPI
 #define VSPI_MOSI_PIN 23

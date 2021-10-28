@@ -8,11 +8,11 @@ TestBench test;
 
 void setup()
 {
-  test.begin();
+
 }
 
 void loop()
 {
-  vTaskDelete(NULL);
+
 }
 

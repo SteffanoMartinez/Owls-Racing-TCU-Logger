@@ -13,6 +13,15 @@ void TestBench::begin()
 
     esp.uart0.begin(115200);
     terminal.begin(&esp.uart0, false);
+
+    esp.uart0.begin(115200);
+    terminal.begin(&esp.uart0);
+
+    terminal.printMessage(TerminalMessage("Test bench begin", "TES", INFO, micros()));
+
+    esp.i2c0.begin(I2C0_SDA, I2C0_SCL, I2C0_CLK_FREQUENCY_KHz * 1000);
+    esp.i2c1.begin(I2C1_SDA, I2C1_SCL, I2C1_CLK_FREQUENCY_KHz * 1000);
+
     //* 1. Test External I/O
     ESP_ERROR initialize_io = ioExpansion.begin(&esp.i2c0, 0x3E);
     if (initialize_io.on_error)
@@ -24,8 +33,25 @@ void TestBench::begin()
         terminal.printMessage(TerminalMessage("IO Expansion Failed Initialization", "I/O", INFO, micros()));
     }
     // When IO lib is ported, begin fucntion comes here.
-    //* 2. Text Real Time Clock
-    esp.i2c0.begin(I2C0_SDA_PIN, I2C0_SCL_PIN, I2C0_CLK_FREQUENCY_KHz * 1000);
+
+    if (!io_expansion.begin(0x3E))
+    {
+        Serial.println("Failed to communicate.");
+        while (1)
+            ;
+    }
+    //* 3. Test Internal Motion Unit (& calibrate?)
+    // When IMU lib is ported, begin function comes here.
+      ESP_ERROR rtc_initialize = rtc.begin(RealTimeClock::RV8803_IC, &esp.i2c0);
+
+    if (rtc_initialize.on_error)
+    {
+        testBenchErrors.io_expansion = true;
+    }
+    else
+        terminal.printMessage(TerminalMessage("RTC Initialied Successfully", "TES", INFO, micros()));
+
+      esp.i2c0.begin(I2C0_SDA_PIN, I2C0_SCL_PIN, I2C0_CLK_FREQUENCY_KHz * 1000);
     ESP_ERROR initialize_rtc = rtc.begin(RealTimeClock::RV8803_IC, &esp.i2c0);
     if (initialize_rtc.on_error)
     {
@@ -35,8 +61,6 @@ void TestBench::begin()
     {
         terminal.printMessage(TerminalMessage("RTC Succesfully Initialized", "RTC", INFO, micros()));
     }
-    //* 3. Test Internal Motion Unit (& calibrate?)
-    // When IMU lib is ported, begin function comes here.
 
     //* 5. Test eMMC
     ESP_ERROR initialize_emmc = emmc.begin(eMMC0_EN_PIN_EXT, eMMC0_CD_PIN_EXT, eMMC_MODE, MODE_1_BIT);
@@ -68,5 +92,11 @@ void TestBench::begin()
     can_error_debug_message.time = micros();
     can_error_debug_message.process_time = micros() - initial_time;
 
+
     terminal.printMessage(can_error_debug_message);
+
+    //* Print all errors that are true
+
+    vTaskDelete(NULL);
+
 }
