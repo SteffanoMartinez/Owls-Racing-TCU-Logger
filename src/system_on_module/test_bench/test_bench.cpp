@@ -2,16 +2,23 @@
 #include <esp32_utilities.h>
 #include <system_on_module/device/device_pinout.h>
 #include <system_on_module/device/soc_settings.h>
-RealTimeClock rtc;
-SystemOnChip esp;
-EMMC_Memory emmc;
 
 void TestBench::begin()
 {
-    //* 1. Test External I/O
-    ESP_ERROR io;
-    // When IO lib is ported, begin fucntion comes here.
 
+    esp.uart0.begin(115200);
+    terminal.begin(&esp.uart0, false);
+    //* 1. Test External I/O
+    ESP_ERROR initialize_io = ioExpansion.begin(&esp.i2c0, 0x3E);
+    if (initialize_io.on_error)
+    {
+        terminal.printMessage(TerminalMessage("IO Expansion Successfully Initialized", "I/O", ERROR, micros()));
+    }
+    else
+    {
+        terminal.printMessage(TerminalMessage("IO Expansion Failed Initialization", "I/O", INFO, micros()));
+    }
+    // When IO lib is ported, begin fucntion comes here.
     //* 2. Text Real Time Clock
     esp.i2c0.begin(I2C0_SDA_PIN, I2C0_SCL_PIN, I2C0_CLK_FREQUENCY_KHz * 1000);
     ESP_ERROR initialize_rtc = rtc.begin(RealTimeClock::RV8803_IC, &esp.i2c0);
@@ -38,8 +45,9 @@ void TestBench::begin()
     }
 
     //* 6. Test Analog to Digital Converter
+    // Port ADC
 
     //* 7. CAN bus
-
+    ESP_ERROR initialize_
     //*
 }

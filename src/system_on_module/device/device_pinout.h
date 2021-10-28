@@ -31,8 +31,8 @@
 #define HSPI_CLCK_PIN 16
 
 //* eMMC Memory
-#define eMMC0_EN_PIN_EXT 6
-#define eMMC0_CD_PIN_EXT 7
+#define eMMC0_EN_PIN_EXT -1
+#define eMMC0_CD_PIN_EXT -1
 
 //* CAN bus
 #define CAN0_CONTROLLER_CS_PIN 27

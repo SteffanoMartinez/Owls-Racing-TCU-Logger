@@ -7,11 +7,12 @@ class TestBench
 {
 public:
     void begin();
-
-private:
-    // SystemOnChip esp;
+    SystemOnChip esp;
     Terminal terminal;
-    //RealTimeClock rtc;
+    RealTimeClock rtc;
+    EMMC_Memory emmc;
+    SX1509 ioExpansion;
+    MCP2518FD canController;
 };
 
 extern TestBench testBench;

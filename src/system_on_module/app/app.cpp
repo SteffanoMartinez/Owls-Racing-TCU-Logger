@@ -17,13 +17,14 @@
 #include "tasks/read_can/read_can.h"
 
 //*****************************************************       DATA TYPES        *****************************************************/
+SystemOnChip esp;
+extern Terminal terminal;
+extern BluetoothLowEnergyServer bleServer;
+extern SPIFFS_Memory spiffsMemory;
+extern EMMC_Memory emmcMemory;
+extern MCP2518FD CAN;
 
 //*****************************************************         OBJECTS         *****************************************************/
-SystemOnChip esp;
-Terminal terminal;
-BluetoothLowEnergyServer bleServer;
-SPIFFS_Memory spiffsMemory;
-EMMC_Memory emmcMemory;
 
 MCP2518FD CAN(CAN0_CONTROLLER_CS_PIN, esp.vspi, CAN0_CONTROLLER_INT_PIN);
 
