@@ -17,7 +17,7 @@
 #include "tasks/read_can/read_can.h"
 
 //*****************************************************       DATA TYPES        *****************************************************/
-SystemOnChip esp;
+extern SystemOnChip esp;
 extern Terminal terminal;
 extern BluetoothLowEnergyServer bleServer;
 extern SPIFFS_Memory spiffsMemory;

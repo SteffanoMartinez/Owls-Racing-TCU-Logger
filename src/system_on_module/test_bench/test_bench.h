@@ -2,6 +2,7 @@
 
 #include <Arduino.h>
 #include <esp32_utilities.h>
+#include <ACAN2517FD.h>
 
 class TestBench
 {
@@ -12,7 +13,7 @@ public:
     RealTimeClock rtc;
     EMMC_Memory emmc;
     SX1509 ioExpansion;
-    MCP2518FD canController;
+    
 };
 
 extern TestBench testBench;

@@ -2,6 +2,11 @@
 #include <esp32_utilities.h>
 #include <system_on_module/device/device_pinout.h>
 #include <system_on_module/device/soc_settings.h>
+#include <ACAN2517FD.h>
+
+TerminalMessage can_error_debug_message;
+SystemOnChip esp;
+ACAN2517FD can(CAN0_CONTROLLER_CS_PIN, esp.hspi, CAN0_CONTROLLER_INT_PIN);
 
 void TestBench::begin()
 {
@@ -47,7 +52,21 @@ void TestBench::begin()
     //* 6. Test Analog to Digital Converter
     // Port ADC
 
-    //* 7. CAN bus
-    ESP_ERROR initialize_
-    //*
+    //* 7. CAN
+    long initial_time = millis();
+    esp.hspi.begin(HSPI_CLCK_PIN, HSPI_MISO_PIN, HSPI_MOSI_PIN);
+    ACAN2517FDSettings settings(ACAN2517FDSettings::OSC_40MHz, 1000 * 1000, DataBitRateFactor::x8);
+    settings.mDriverReceiveFIFOSize = 200;
+
+    const uint32_t errorCode = can.begin(settings, []
+                                         { can.isr(); });
+
+    can_error_debug_message.body = "CAN Bus Error Code = ";
+    can_error_debug_message.body += String(errorCode);
+    can_error_debug_message.system = "CAN";
+    can_error_debug_message.type = ERROR;
+    can_error_debug_message.time = micros();
+    can_error_debug_message.process_time = micros() - initial_time;
+
+    terminal.printMessage(can_error_debug_message);
 }
