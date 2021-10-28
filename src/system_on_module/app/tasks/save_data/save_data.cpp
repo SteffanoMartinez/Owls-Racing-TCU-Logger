@@ -10,7 +10,7 @@ void setupSaveDataTask(void *parameters)
     uint8_t debug_message_queue_ticks = 0;
 
     //* 1. Initialize eMMC
-    ESP_ERROR initialize_emmc = emmcMemory.begin(eMMC0_EN_PIN, eMMC0_CD_PIN, eMMC_MODE, MODE_1_BIT);
+    ESP_ERROR initialize_emmc = emmcMemory.begin(eMMC0_EN_PIN_EXT, eMMC0_CD_PIN_EXT, eMMC_MODE, MODE_1_BIT);
 
     if (initialize_emmc.on_error)
     {

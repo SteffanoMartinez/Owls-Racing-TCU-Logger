@@ -21,11 +21,17 @@ public:
     void begin();
 
 private:
+<<<<<<< HEAD
     SystemOnChip esp;
     Terminal terminal;
     RealTimeClock rtc;
     SX1509 io_expansion;
     TestBenchErrors testBenchErrors;
+=======
+    // SystemOnChip esp;
+    Terminal terminal;
+    //RealTimeClock rtc;
+>>>>>>> 092051fb0968885b39f93681d73f874b19e72874
 };
 
 extern TestBench testBench;
