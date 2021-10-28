@@ -1,6 +1,5 @@
 #pragma once
 /*
-* Company: ANZE Suspension
 * File Name: main.cpp
 * Project: ESP32 System on Module
 * Version: 1.0
